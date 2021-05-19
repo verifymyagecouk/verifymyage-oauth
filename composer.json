@@ -1,0 +1,15 @@
+{
+    "name": "verifymyagecouk/verifymyage-oauth",
+    "description": "VerifyMyAge OAuth Verification",
+    "type": "project",
+    "minimum-stability": "stable",
+    "license": "1.0.0",
+    "require": {
+        "league/oauth2-client": "^2.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "VerifyMyAge\\": "src/"
+        }
+    }
+}
