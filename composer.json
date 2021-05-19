@@ -3,7 +3,7 @@
     "description": "VerifyMyAge OAuth Verification",
     "type": "project",
     "minimum-stability": "stable",
-    "license": "1.0.0",
+    "license": "MIT",
     "require": {
         "league/oauth2-client": "^2.6"
     },
