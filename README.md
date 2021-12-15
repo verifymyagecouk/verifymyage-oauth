@@ -20,7 +20,7 @@ $vma = new VerifyMyAge\OAuth(getenv('VMA_CLIENT_ID'), getenv('VMA_CLIENT_SECRET'
 
 // Redirect or show age-gate if we don't have a code yet
 if (!isset($_GET['code'])) {
-    $redirectURL = $vma->redirectURL();
+    $redirectURL = $vma->redirectURL(VerifyMyAge\Countries::GERMANY);
     $_SESSION['oauth2state'] = $vma->state();
     header('Location: ' . $redirectURL);
     exit;
@@ -43,3 +43,11 @@ if (!isset($_GET['code'])) {
     }
 }
 ```
+
+**Country Options**
+
+VerifyMyAge\Countries::FRANCE
+
+VerifyMyAge\Countries::GERMANY
+
+VerifyMyAge\Countries::UNITED_KINGDOM

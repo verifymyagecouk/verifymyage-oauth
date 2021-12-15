@@ -8,6 +8,12 @@ namespace VerifyMyAge;
 class OAuth
 {
 
+    const COUNTRIES = [
+        Countries::UNITED_KINGDOM,
+        Countries::FRANCE,
+        Countries::GERMANY,
+    ];
+    
     private $clientID;
 
     private $clientSecret;
@@ -38,9 +44,14 @@ class OAuth
     /**
      * URL to be redirect your user after the age-gate
      */
-    public function redirectURL()
+    public function redirectURL($country)
     {
-        return $this->provider()->getAuthorizationUrl(["scope" => "adult", "state" => $this->state()]);
+        if (!in_array($country, static::COUNTRIES)) {
+            throw new \Exception("Invalid country: ${country}");
+        }
+        return $this->provider()->getAuthorizationUrl([
+            "scope" => "adult", "state" => $this->state(), "country" => $country,
+        ]);
     }
 
     /**
