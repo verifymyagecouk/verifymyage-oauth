@@ -12,6 +12,7 @@ class OAuth
         Countries::UNITED_KINGDOM,
         Countries::FRANCE,
         Countries::GERMANY,
+        Countries::UNITED_STATES_OF_AMERICA,
     ];
     
     private $clientID;
