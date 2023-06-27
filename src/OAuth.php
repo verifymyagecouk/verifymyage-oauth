@@ -14,6 +14,14 @@ class OAuth
         Countries::GERMANY,
         Countries::UNITED_STATES_OF_AMERICA,
     ];
+
+    const METHODS = [
+        Methods::AGE_ESTIMATION,
+        Methods::CREDIT_CARD,
+        Methods::ID_SCAN,
+        Methods::ID_SCAN_FACE_MATCH,
+        Methods::EMAIL,
+    ];
     
     private $clientID;
 
@@ -45,14 +53,24 @@ class OAuth
     /**
      * URL to be redirect your user after the age-gate
      */
-    public function redirectURL($country)
+    public function redirectURL($country, $method=NULL)
     {
         if (!in_array($country, static::COUNTRIES)) {
             throw new \Exception("Invalid country: ${country}");
         }
-        return $this->provider()->getAuthorizationUrl([
-            "scope" => "adult", "state" => $this->state(), "country" => $country,
-        ]);
+
+        $arrayToAuthorizationUrl = [
+            "scope"     => "adult",
+            "state"     => $this->state(),
+            "country"   => $country
+        ];
+
+        if($method && !in_array($method, static::METHODS)){
+            throw new \Exception("Invalid method: ${method}");
+        }
+
+        $arrayToAuthorizationUrl['method'] = $method;
+        return $this->provider()->getAuthorizationUrl($arrayToAuthorizationUrl);
     }
 
     /**
