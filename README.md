@@ -51,3 +51,5 @@ VerifyMyAge\Countries::FRANCE
 VerifyMyAge\Countries::GERMANY
 
 VerifyMyAge\Countries::UNITED_KINGDOM
+
+VerifyMyAge\Countries::UNITED_STATES_OF_AMERICA
