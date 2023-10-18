@@ -13,6 +13,7 @@ class OAuth
         Countries::FRANCE,
         Countries::GERMANY,
         Countries::UNITED_STATES_OF_AMERICA,
+        Countries::UNITED_STATES_OF_AMERICA_TWO,
     ];
 
     const METHODS = [
