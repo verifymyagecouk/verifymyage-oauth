@@ -8,5 +8,6 @@ class Countries {
   const FRANCE = "fr";
   const GERMANY = "de";
   const UNITED_STATES_OF_AMERICA = "us";
+  const UNITED_STATES_OF_AMERICA_TWO = "us2";
 
 }
