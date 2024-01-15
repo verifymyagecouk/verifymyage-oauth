@@ -13,6 +13,7 @@ class OAuth
         Countries::UNITED_KINGDOM_TWO,
         Countries::FRANCE,
         Countries::GERMANY,
+        Countries::GERMANY_TWO,
         Countries::UNITED_STATES_OF_AMERICA,
         Countries::UNITED_STATES_OF_AMERICA_TWO,
         Countries::UNITED_STATES_OF_AMERICA_THREE,
