@@ -11,6 +11,7 @@ class OAuth
     const COUNTRIES = [
         Countries::UNITED_KINGDOM,
         Countries::UNITED_KINGDOM_TWO,
+        Countries::UNITED_KINGDOM_THREE,
         Countries::FRANCE,
         Countries::GERMANY,
         Countries::GERMANY_TWO,
@@ -47,6 +48,7 @@ class OAuth
         $this->redirectURL = $redirectURL;
         $this->currentState = null;
         $this->currentProvider = null;
+
     }
 
     /**
@@ -69,7 +71,7 @@ class OAuth
         $arrayToAuthorizationUrl = [
             "scope"     => "adult",
             "state"     => $this->state(),
-            "country"   => $country
+            "country"   => $country,
         ];
 
         if($method && !in_array($method, static::METHODS)){
