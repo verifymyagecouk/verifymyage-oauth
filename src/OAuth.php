@@ -11,6 +11,7 @@ class OAuth
     const COUNTRIES = [
         Countries::UNITED_KINGDOM,
         Countries::UNITED_KINGDOM_TWO,
+        Countries::UNITED_KINGDOM_THREE,
         Countries::FRANCE,
         Countries::GERMANY,
         Countries::GERMANY_TWO,
@@ -47,6 +48,7 @@ class OAuth
         $this->redirectURL = $redirectURL;
         $this->currentState = null;
         $this->currentProvider = null;
+
     }
 
     /**
@@ -60,7 +62,7 @@ class OAuth
     /**
      * URL to be redirect your user after the age-gate
      */
-    public function redirectURL($country, $method=NULL)
+    public function redirectURL($country, $method=NULL, $account=true)
     {
         if (!in_array($country, static::COUNTRIES)) {
             throw new \Exception("Invalid country: ${country}");
@@ -69,7 +71,8 @@ class OAuth
         $arrayToAuthorizationUrl = [
             "scope"     => "adult",
             "state"     => $this->state(),
-            "country"   => $country
+            "country"   => $country,
+            "account"   => $account
         ];
 
         if($method && !in_array($method, static::METHODS)){

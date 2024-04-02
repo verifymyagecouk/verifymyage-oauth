@@ -6,6 +6,7 @@ class Countries {
 
   const UNITED_KINGDOM = "gb";
   const UNITED_KINGDOM_TWO = "gb2";
+  const UNITED_KINGDOM_THREE = "gb3";
   const FRANCE = "fr";
   const GERMANY = "de";
   const GERMANY_TWO = "de2";
