@@ -62,7 +62,7 @@ class OAuth
     /**
      * URL to be redirect your user after the age-gate
      */
-    public function redirectURL($country, $method=NULL, $account=true)
+    public function redirectURL($country, $method=NULL)
     {
         if (!in_array($country, static::COUNTRIES)) {
             throw new \Exception("Invalid country: ${country}");
@@ -72,7 +72,6 @@ class OAuth
             "scope"     => "adult",
             "state"     => $this->state(),
             "country"   => $country,
-            "account"   => $account
         ];
 
         if($method && !in_array($method, static::METHODS)){
