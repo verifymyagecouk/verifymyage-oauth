@@ -17,6 +17,7 @@ class Countries {
   const UNITED_STATES_OF_AMERICA_FIVE = "us5";
   const UNITED_STATES_OF_AMERICA_SIX = "us6";
   const UNITED_STATES_OF_AMERICA_SEVEN = "us7";
+  const UNITED_STATES_OF_AMERICA_EIGHT = "us8";
   const DEMO = "DEMO";
 
 
