@@ -92,10 +92,10 @@ class OAuthV2
     
             ]);
 
-            $responseBodyDeoce = json_decode($response->getBody()->getContents(), true);
+            $responseBodyDecoce = json_decode($response->getBody()->getContents(), true);
     
             
-            return $responseBodyDeoce['message'];
+            return $responseBodyDecoce['message'];
 
         }catch (\Exception $e) {
             throw new \Exception("Error on get start verification url. Message: " . $e->getMessage());
