@@ -18,9 +18,6 @@ class OAuthV2
 
     private $currentProvider;
 
-    
-
-
     const METHODS = [
         Methods::AGE_ESTIMATION,
         Methods::CREDIT_CARD,
@@ -96,10 +93,7 @@ class OAuthV2
             ]);
 
             $responseBodyDeoce = json_decode($response->getBody()->getContents(), true);
-            /*echo "<pre>";
-            print_r($responseBodyDeoce['message']);
-            echo "</pre>";
-            exit;*/
+    
             
             return $responseBodyDeoce['message'];
 
