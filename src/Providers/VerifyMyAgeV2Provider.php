@@ -16,8 +16,7 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
     private $baseURL = "https://oauth.verifymyage.com";
 
     public function useSandbox(){
-       //$this->baseURL = "https://oauth.sandbox.verifymyage.com";
-       $this->baseURL = "https://nucleus-adult-dev.verifymyage.com";
+       $this->baseURL = "https://oauth.sandbox.verifymyage.com";
     }
 
     public function getBaseAuthorizationUrl(){
