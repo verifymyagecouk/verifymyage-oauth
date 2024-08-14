@@ -16,7 +16,8 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
     private $baseURL = "https://oauth.verifymyage.com";
 
     public function useSandbox(){
-       $this->baseURL = "https://oauth.sandbox.verifymyage.com";
+       //$this->baseURL = "https://oauth.sandbox.verifymyage.com";
+       $this->baseURL = "https://nucleus-adult-dev.verifymyage.com";
     }
 
     public function getBaseAuthorizationUrl(){
@@ -29,6 +30,11 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
 
     public function getBasicAuthorization() { 
         return base64_encode("Basic $this->clientId:$this->clientSecret");
+    }
+
+    public function getUserInfoEncoded($userInfo){
+        $userInfo['email']  = self::encrypt($userInfo['email']);
+        return $userInfo;
     }
 
     public function generateHmacVmaSignature($body)
@@ -55,4 +61,13 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
     protected function createResourceOwner(array $response, AccessToken $token) {
         return new GenericResourceOwner($response, null);
     }
+
+    protected function encrypt($text)
+    {
+        $secretHash         = substr(hash('sha256', $this->clientSecret, true), 0, 32);
+        $iv                 = openssl_random_pseudo_bytes(16);
+        $ciphertext         = openssl_encrypt($text, 'AES-256-CFB', $secretHash, OPENSSL_RAW_DATA, $iv);
+        $ciphertext_base64  = base64_encode($iv . $ciphertext);    return $ciphertext_base64;
+    }
+
 }
