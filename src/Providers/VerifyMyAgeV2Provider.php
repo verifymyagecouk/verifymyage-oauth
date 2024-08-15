@@ -28,7 +28,8 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
     }
 
     public function getBasicAuthorization() { 
-        return base64_encode("Basic $this->clientId:$this->clientSecret");
+        $basicAuth = base64_encode("$this->clientId:$this->clientSecret");
+        return "Basic {$basicAuth}";
     }
 
     public function getUserInfoEncoded($userInfo){
@@ -38,7 +39,8 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
 
     public function generateHmacVmaSignature($body)
     { 
-        return hash_hmac('sha256', $body, $this->clientSecret);
+        $VMASignature = hash_hmac('sha256', $body, $this->clientSecret);
+        return "hmac {$VMASignature}";
     }
 
     public function getResourceOwnerDetailsUrl(AccessToken $token) {
@@ -66,7 +68,8 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
         $secretHash         = substr(hash('sha256', $this->clientSecret, true), 0, 32);
         $iv                 = openssl_random_pseudo_bytes(16);
         $ciphertext         = openssl_encrypt($text, 'AES-256-CFB', $secretHash, OPENSSL_RAW_DATA, $iv);
-        $ciphertext_base64  = base64_encode($iv . $ciphertext);    return $ciphertext_base64;
+        $ciphertext_base64  = base64_encode($iv . $ciphertext);    
+        return $ciphertext_base64;
     }
 
 }

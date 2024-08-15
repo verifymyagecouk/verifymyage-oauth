@@ -54,7 +54,7 @@ class OAuthV2
     /**
      * Do a post with HMAC authorization to VerifyMy OAuthV2 and return response from service.
      */
-    public function getStartVerificationUrl($country, $method="", $businessSettingsId="", $userId="", $verificationId="", $userInfo=array()){
+    public function getStartVerificationUrl(string $country, string $method="", string $businessSettingsId="", string $userId="", string $verificationId="", bool $stealth=false, array $userInfo=array()){
         if (!in_array($country, static::COUNTRIES)) {
             throw new \Exception("Invalid country: " . $country);
         }
@@ -64,7 +64,6 @@ class OAuthV2
         }
     
         try {
-
             $body = [
                 "scope"                 => $this->provider()->getDefaultScope(),
                 "country"               => $country,
@@ -74,19 +73,16 @@ class OAuthV2
                 "verification_id"       => $verificationId,
                 "redirect_url"          => $this->redirectURL,
             ];
-
-            if (count($userInfo)) { 
-                $userInfoEncoded = $this->provider()->getUserInfoEncoded($userInfo);
-                $body['user_info'] = $userInfoEncoded;
+            if (count($userInfo)) {
+                $body['user_info'] = $this->provider()->getUserInfoEncoded($userInfo);
             }
-            
             $bodyEncoded        = json_encode($body);
             $vmaHmacSignature   = $this->provider()->generateHmacVmaSignature($bodyEncoded);
             $url                = $this->provider()->getBaseAuthorizationUrl();
+            $urlWithQueryParam  = "{$url}?stealth={$stealth}";
             $basicAuth          = $this->provider()->getBasicAuthorization();
             $client             = new Client();
-
-            $response           = $client->request('POST', $url, [
+            $response           = $client->request('POST', $urlWithQueryParam, [
                 'headers' => [
                     'Authorization'         => $basicAuth,
                     'VMA-HMAC-Signature'    => $vmaHmacSignature,
@@ -95,10 +91,7 @@ class OAuthV2
                 'body' => $bodyEncoded,
     
             ]);
-
             $responseBodyDecode = json_decode($response->getBody()->getContents(), true);
-    
-            
             return $responseBodyDecode['message'];
 
         }catch (\Exception $e) {
