@@ -54,7 +54,7 @@ class OAuthV2
     /**
      * Do a post with HMAC authorization to VerifyMy OAuthV2 and return response from service.
      */
-    public function getStartVerificationUrl(string $country, string $method="", string $businessSettingsId="", string $externalUserId="", string $verificationId="", bool $stealth=false, array $userInfo=array()){
+    public function getStartVerificationUrl(string $country, string $method="", string $businessSettingsId="", string $externalUserId="", string $verificationId="", string $webhook="", bool $stealth=false, array $userInfo=array()){
         if (!in_array($country, static::COUNTRIES)) {
             throw new \Exception("Invalid country: " . $country);
         }
@@ -72,6 +72,7 @@ class OAuthV2
                 "external_user_id"      => $externalUserId,
                 "verification_id"       => $verificationId,
                 "redirect_url"          => $this->redirectURL,
+                "webhook"               => $webhook,
             ];
             if (count($userInfo)) {
                 $body['user_info'] = $this->provider()->getUserInfoEncoded($userInfo);
