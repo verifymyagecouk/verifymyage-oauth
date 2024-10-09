@@ -20,16 +20,11 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
     }
 
     public function getBaseAuthorizationUrl(){
-        return "{$this->baseURL}/v1/auth/start";
+        return "{$this->baseURL}/v2/auth/start";
     }
 
     public function getBaseAccessTokenUrl(array $params) {
         return "{$this->baseURL}/token";
-    }
-
-    public function getBasicAuthorization() { 
-        $basicAuth = base64_encode("$this->clientId:$this->clientSecret");
-        return "Basic {$basicAuth}";
     }
 
     public function getUserInfoEncoded($userInfo){
@@ -37,10 +32,10 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
         return $userInfo;
     }
 
-    public function generateHmacVmaSignature($body)
+    public function generateHMACAutorization($body)
     { 
         $VMASignature = hash_hmac('sha256', $body, $this->clientSecret);
-        return "hmac {$VMASignature}";
+        return "hmac {$this->clientId}:{$VMASignature}";
     }
 
     public function getResourceOwnerDetailsUrl(AccessToken $token) {
