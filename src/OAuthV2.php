@@ -54,7 +54,7 @@ class OAuthV2
     /**
      * Do a post with HMAC authorization to VerifyMy OAuthV2 and return response from service.
      */
-    public function getStartVerificationUrl(string $country, string $method="", string $businessSettingsId="", string $externalUserId="", string $verificationId="", string $webhook="", bool $stealth=false, array $userInfo=array()){
+    public function getStartVerificationUrl(string $country, string $method="", string $businessSettingsId="", string $externalUserId="", string $verificationId="", string $webhook="",bool $stealth=false, array $userInfo=array()){
         if (!in_array($country, static::COUNTRIES)) {
             throw new \Exception("Invalid country: " . $country);
         }
@@ -78,15 +78,13 @@ class OAuthV2
                 $body['user_info'] = $this->provider()->getUserInfoEncoded($userInfo);
             }
             $bodyEncoded        = json_encode($body);
-            $vmaHmacSignature   = $this->provider()->generateHmacVmaSignature($bodyEncoded);
+            $authorization      = $this->provider()->generateHMACAutorization($bodyEncoded);
             $url                = $this->provider()->getBaseAuthorizationUrl();
             $urlWithQueryParam  = "{$url}?stealth={$stealth}";
-            $basicAuth          = $this->provider()->getBasicAuthorization();
             $client             = new Client();
             $response           = $client->request('POST', $urlWithQueryParam, [
                 'headers' => [
-                    'Authorization'         => $basicAuth,
-                    'VMA-HMAC-Signature'    => $vmaHmacSignature,
+                    'Authorization'         => $authorization,
                     'Content-Type'          => 'application/json',
                 ],
                 'body' => $bodyEncoded,
