@@ -7,7 +7,7 @@ use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use Psr\Http\Message\ResponseInterface;
 use League\OAuth2\Client\Provider\GenericResourceOwner;
 
-class VerifyMyAgeV3Provider extends \League\OAuth2\Client\Provider\AbstractProvider {
+class VerifyMyAgeV1Provider extends \League\OAuth2\Client\Provider\AbstractProvider {
 
     use BearerAuthorizationTrait;
 
@@ -17,14 +17,20 @@ class VerifyMyAgeV3Provider extends \League\OAuth2\Client\Provider\AbstractProvi
 
     public function useSandbox(){
        $this->baseURL = "https://oauth.sandbox.verifymyage.com";
+        
     }
 
     public function getBaseAuthorizationUrl(){
-        return "{$this->baseURL}/v2/auth/start";
+        return "{$this->baseURL}/v1/auth/start";
     }
 
     public function getBaseAccessTokenUrl(array $params) {
         return "{$this->baseURL}/token";
+    }
+
+    public function getBasicAuthorization() { 
+        $basicAuth = base64_encode("$this->clientId:$this->clientSecret");
+        return "Basic {$basicAuth}";
     }
 
     public function getUserInfoEncoded($userInfo){
@@ -32,10 +38,10 @@ class VerifyMyAgeV3Provider extends \League\OAuth2\Client\Provider\AbstractProvi
         return $userInfo;
     }
 
-    public function generateHMACAutorization($body)
+    public function generateHmacVmaSignature($body)
     { 
         $VMASignature = hash_hmac('sha256', $body, $this->clientSecret);
-        return "hmac {$this->clientId}:{$VMASignature}";
+        return "hmac {$VMASignature}";
     }
 
     public function getResourceOwnerDetailsUrl(AccessToken $token) {

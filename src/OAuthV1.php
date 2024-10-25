@@ -8,7 +8,7 @@ use GuzzleHttp\Client;
 /**
  * VerifyMyAge OAuth2 - Adult Content SDK
  */
-class OAuthV3
+class OAuthV1
 {
     private $clientID;
 
@@ -54,7 +54,7 @@ class OAuthV3
     /**
      * Do a post with HMAC authorization to VerifyMy OAuthV2 and return response from service.
      */
-    public function getStartVerificationUrl(string $country, string $method="", string $businessSettingsId="", string $externalUserId="", string $verificationId="", string $webhook="",bool $stealth=false, array $userInfo=array()){
+    public function getStartVerificationUrl(string $country, string $method="", string $businessSettingsId="", string $externalUserId="", string $verificationId="", string $webhook="", bool $stealth=false, array $userInfo=array()){
         if (!in_array($country, static::COUNTRIES)) {
             throw new \Exception("Invalid country: " . $country);
         }
@@ -78,13 +78,15 @@ class OAuthV3
                 $body['user_info'] = $this->provider()->getUserInfoEncoded($userInfo);
             }
             $bodyEncoded        = json_encode($body);
-            $authorization      = $this->provider()->generateHMACAutorization($bodyEncoded);
+            $vmaHmacSignature   = $this->provider()->generateHmacVmaSignature($bodyEncoded);
             $url                = $this->provider()->getBaseAuthorizationUrl();
             $urlWithQueryParam  = "{$url}?stealth={$stealth}";
+            $basicAuth          = $this->provider()->getBasicAuthorization();
             $client             = new Client();
             $response           = $client->request('POST', $urlWithQueryParam, [
                 'headers' => [
-                    'Authorization'         => $authorization,
+                    'Authorization'         => $basicAuth,
+                    'VMA-HMAC-Signature'    => $vmaHmacSignature,
                     'Content-Type'          => 'application/json',
                 ],
                 'body' => $bodyEncoded,
@@ -106,7 +108,7 @@ class OAuthV3
     private function provider()
     {
         if ($this->currentProvider === null) {
-            $this->currentProvider = new Providers\VerifyMyAgeV3Provider([
+            $this->currentProvider = new Providers\VerifyMyAgeV1Provider([
                 'clientId'                 => $this->clientID,
                 'clientSecret'             => $this->clientSecret,
                 'redirectUri'              => $this->redirectURL,
