@@ -23,6 +23,8 @@ class OAuth
         Countries::UNITED_STATES_OF_AMERICA_SIX,
         Countries::UNITED_STATES_OF_AMERICA_SEVEN,
         Countries::UNITED_STATES_OF_AMERICA_EIGHT,
+        Countries::UNITED_STATES_OF_AMERICA_NINE,
+        Countries::UNITED_STATES_OF_AMERICA_TEN,
         Countries::DEMO,
     ];
 
