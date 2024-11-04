@@ -72,7 +72,7 @@ class OAuthV2
                 "external_user_id"      => $externalUserId,
                 "verification_id"       => $verificationId,
                 "redirect_url"          => $this->redirectURL,
-                "webhook"               => $webhook,
+                "otp_webhook"               => $webhook,
             ];
             if (count($userInfo)) {
                 $body['user_info'] = $this->provider()->getUserInfoEncoded($userInfo);
@@ -80,7 +80,7 @@ class OAuthV2
             $bodyEncoded        = json_encode($body);
             $authorization      = $this->provider()->generateHMACAutorization($bodyEncoded);
             $url                = $this->provider()->getBaseAuthorizationUrl();
-            $urlWithQueryParam  = "{$url}?stealth={$stealth}&run_otp={$runOtp}";
+            $urlWithQueryParam  = "{$url}?stealth={$stealth}&runOTP={$runOtp}";
             $client             = new Client();
             $response           = $client->request('POST', $urlWithQueryParam, [
                 'headers' => [
