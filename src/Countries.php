@@ -11,6 +11,7 @@ class Countries {
   const UNITED_KINGDOM_EIGHT = "gb8";
   const FRANCE = "fr";
   const FRANCE_TWO = "fr2";
+  const FRANCE_THREE = "fr3";
   const GERMANY = "de";
   const GERMANY_TWO = "de2";
   const UNITED_STATES_OF_AMERICA = "us";
