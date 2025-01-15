@@ -1,83 +1,198 @@
-# VerifyMyAge OAuth Adult Content PHP SDK
+# VerifyMyAge PHP SDK
 
-PHP SDK to use VerifyMyAge OAuth service. 
+A PHP SDK for integrating with VerifyMyAge's verification service. This library provides easy-to-use methods for implementing age verification in your PHP applications.
+
+## Table of Contents
+- [Installation](#installation)
+- [Features](#features)
+- [Usage](#usage)
+  - [Basic Setup](#basic-setup)
+  - [Available Methods](#available-methods)
+  - [Verification Methods](#verification-methods)
+  - [Verification Status](#verification-status-oauthv1--oauthv2)
+  - [Supported Countries](#supported-countries)
+- [Examples](#examples)
+- [Development Mode](#development-mode)
 
 ## Installation
-1. PHP ^7.2.5 || ^8.0
-2. Composer ^2.0
+
 ```bash
 composer require verifymyagecouk/verifymyage-oauth
 ```
 
-## Usage Examples
- - [Documentation](https://docs.verifymyage.com/docs/adult/authorisation/) of OAuthV2 version.
-```php
-<?php  
-require(__DIR__ . "/vendor/autoload.php");
-// To use OAuthV2
-$vma = new VerifyMyAge\OAuthV2(getenv('VMA_CLIENT_ID'), getenv('VMA_CLIENT_SECRET'), getenv('VMA_REDIRECT_URL'));
-//$vma->useSandbox();
-// Will return an array with index: start_verification_url, verification_id and verification_status
-$response = $vma->getStartVerificationUrl(VerifyMyAge\Countries::UNITED_STATES_OF_AMERICA);
-print_r($response);
+## Features
 
-// Avoid CSRF attack
-if (empty($_GET['state']) || (isset($_SESSION['oauth2state']) && $_GET['state'] !== $_SESSION['oauth2state'])) {
-    if (isset($_SESSION['oauth2state'])) {
-        unset($_SESSION['oauth2state']);
-    }
-    exit('Invalid state');
-} else {
-    try {
-        // Try to get an access token using the authorization code grant.
-        $accessToken = $vma->exchangeCodeByToken($_GET['code']);
-        $user = $vma->user($accessToken);
-        var_export($user);
-    } catch (\Exception $e) {
-        // Failed to get the access token or user details.
-        exit($e->getMessage());
-    }
-}
+- Authentication flow
+- Multiple verification methods
+- Support for various countries
+- Sandbox environment for testing
+- HMAC authentication
+- User data encryption
+
+## Usage
+
+### Basic Setup
+
+```php
+use VerifyMyAge\OAuth;
+
+// Initialize the OAuth client
+$oauth = new OAuth(
+    'your-client-id',
+    'your-client-secret',
+    'your-redirect-url'
+);
+
+// For development/testing, use sandbox mode
+$oauth->useSandbox();
 ```
 
-- [Documentation](https://docs.verifymyage.com/docs/adult/oauth2/) of OAuth version (DEPECRETED).
+### Available Methods
+
+The SDK provides three different versions of the OAuth implementation:
+
+1. **OAuth (Legacy)**:
+```php
+use VerifyMyAge\OAuth;
+$oauth = new OAuth($clientId, $clientSecret, $redirectUrl);
+```
+
+2. **OAuthV1**: 
+```php
+use VerifyMyAge\OAuthV1;
+$oauth = new OAuthV1($clientId, $clientSecret, $redirectUrl);
+```
+
+3. **OAuthV2** (Recommended):
+```php
+use VerifyMyAge\OAuthV2;
+$oauth = new OAuthV2($clientId, $clientSecret, $redirectUrl);
+```
+
+### Verification Methods
+
+Available verification methods:
+```php
+Methods::AGE_ESTIMATION
+Methods::CREDIT_CARD
+Methods::ID_SCAN
+Methods::ID_SCAN_FACE_MATCH
+Methods::EMAIL
+```
+
+### Starting Verification (OAuthV2)
+
+```php
+$result = $oauth->getStartVerificationUrl(
+    country: Countries::UNITED_KINGDOM,
+    method: Methods::ID_SCAN,
+    businessSettingsId: 'your-business-settings-id',
+    externalUserId: 'user-123',
+    verificationId: 'verification-123',
+    webhook: 'https://your-webhook.com/callback',
+    stealth: false,
+    runOtp: false,
+    userInfo: [
+        'email' => 'user@example.com'
+        // Additional user information
+    ]
+);
+```
+
+### Handling the OAuth Flow
+
+1. **Generate Authorization URL**:
+```php
+$authUrl = $oauth->redirectURL(
+    country: Countries::UNITED_KINGDOM,
+    method: Methods::ID_SCAN
+);
+```
+
+2. **Exchange Code for Token**:
+```php
+$token = $oauth->exchangeCodeByToken($code);
+```
+
+### Supported Countries
+
+The SDK supports various countries including:
+- United Kingdom (`Countries::UNITED_KINGDOM`)
+- France (`Countries::FRANCE`)
+- Germany (`Countries::GERMANY`)
+- United States (`Countries::UNITED_STATES_OF_AMERICA`)
+- Demo mode (`Countries::DEMO`)
+
+## Development Mode
+
+For testing and development, use the sandbox environment:
+
+```php
+$oauth->useSandbox();
+```
+
+This will direct all requests to the sandbox API endpoint.
+
+## Complete Example
+
+Here's a complete example of implementing age verification:
+
 ```php
 <?php
 
-require(__DIR__ . "/vendor/autoload.php");
+use VerifyMyAge\OAuthV2;
+use VerifyMyAge\Countries;
+use VerifyMyAge\Methods;
 
-$vma = new VerifyMyAge\OAuth(getenv('VMA_CLIENT_ID'), getenv('VMA_CLIENT_SECRET'), getenv('VMA_REDIRECT_URL'));
-//$vma->useSandbox();
-// Redirect or show age-gate if we don't have a code yet
-if (!isset($_GET['code'])) {
-    $redirectURL = $vma->redirectURL(VerifyMyAge\Countries::GERMANY);
-    $_SESSION['oauth2state'] = $vma->state();
-    header('Location: ' . $redirectURL);
+// Initialize the OAuth client
+$oauth = new OAuthV2(
+    clientID: 'your-client-id',
+    clientSecret: 'your-client-secret',
+    redirectURL: 'https://your-app.com/callback'
+);
+
+// Use sandbox for development
+$oauth->useSandbox();
+
+// Start verification process
+$verificationResult = $oauth->getStartVerificationUrl(
+    country: Countries::UNITED_KINGDOM,
+    method: Methods::ID_SCAN,
+    businessSettingsId: 'your-business-id',
+    externalUserId: 'user-123',
+    webhook: 'https://your-app.com/webhook'
+);
+
+// Handle the verification response
+if (isset($verificationResult['verification_url'])) {
+    // Redirect user to verification URL
+    header('Location: ' . $verificationResult['verification_url']);
     exit;
-
-// Avoid CSRF attack
-} elseif (empty($_GET['state']) || (isset($_SESSION['oauth2state']) && $_GET['state'] !== $_SESSION['oauth2state'])) {
-    if (isset($_SESSION['oauth2state'])) {
-        unset($_SESSION['oauth2state']);
-    }
-    exit('Invalid state');
-} else {
-    try {
-        // Try to get an access token using the authorization code grant.
-        $accessToken = $vma->exchangeCodeByToken($_GET['code']);
-        $user = $vma->user($accessToken);
-        var_export($user);
-    } catch (\Exception $e) {
-        // Failed to get the access token or user details.
-        exit($e->getMessage());
-    }
 }
 ```
 
-**Country Options**
+### Verification Status (OAuthV1 & OAuthV2)
 
-VerifyMyAge\Countries::FRANCE
+For detailed information about how to check the verification status, please refer to the official documentation:
+[Verification Status Documentation](https://docs.verifymyage.com/docs/adult/authorisation/#retrieve-verification-status)
 
-VerifyMyAge\Countries::GERMANY
+## Security Considerations
 
-VerifyMyAge\Countries::UNITED_KINGDOM
+- Always use HTTPS for redirect URLs
+- Keep your client credentials secure
+- Validate all user input
+- Implement proper error handling
+- Use webhook validation for callbacks
+
+## Error Handling
+
+The SDK throws exceptions for invalid inputs or API errors. Always wrap API calls in try-catch blocks:
+
+```php
+try {
+    $result = $oauth->getStartVerificationUrl(...);
+} catch (\Exception $e) {
+    // Handle the error appropriately
+    error_log($e->getMessage());
+}
+```
