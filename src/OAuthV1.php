@@ -103,6 +103,17 @@ class OAuthV1
     }
 
     /**
+     * Exchange code by an access token
+     */
+    public function exchangeCodeByToken($code)
+    {
+        return $this->provider()->getAccessToken('authorization_code', [
+            'code' => $code,
+        ]);
+    }
+
+
+    /**
      * VMA Provider
      */
     private function provider()
