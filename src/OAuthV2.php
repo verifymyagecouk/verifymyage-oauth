@@ -109,9 +109,16 @@ class OAuthV2
      */
     public function exchangeCodeByToken($code)
     {
-        return $this->provider()->getAccessToken('authorization_code', [
+        $response = $this->provider()->getAccessToken('authorization_code', [
             'code' => $code,
         ]);
+    
+        return [
+            'accessToken' => $response->getToken(),
+            'expires' => $response->getExpires(),
+            'refreshToken' => $response->getRefreshToken(),
+            'values' => $response->getValues()
+        ];
     }
 
     /**
