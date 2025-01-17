@@ -100,8 +100,12 @@ class OAuthV2
        
     }
 
-    /**
-     * Exchange code by an access token
+     /**
+     * After the user completes the verification process with us, we will redirect the user back to you
+     * using your redirect URL provided to us in the first step, we will keep all the query strings you've sent and also
+     * add two new ones, First as **code** and Second as **verification_id**.
+     * The **code** must be used in this function, so we can authenticate your request and identify the verification 
+     * that you want to get the result.
      */
     public function exchangeCodeByToken($code)
     {
