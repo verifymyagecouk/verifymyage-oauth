@@ -52,6 +52,36 @@ class OAuthV2
     }
 
     /**
+     * Add a collection of approved URL redirects and return a response from service.
+     *
+     * @param array|string $body
+     * @return array
+     */
+    public function addApprovedUrls(array|string $body)
+    {
+        try {
+            $bodyEncoded        = json_encode((array) $body);
+            $authorization      = $this->provider()->generateHMACAutorization($bodyEncoded);
+            $url                = $this->provider()->getBaseApprovedUrl();
+            $client             = new Client();
+			$response           = $client->request('PATCH', $url, array(
+				'headers' 		=> [
+					'Authorization'	=> $authorization,
+					'Content-Type'	=> 'application/json'
+				],
+				'body' 			=> $bodyEncoded
+			));
+
+            $responseBodyDecode = json_decode($response->getBody()->getContents(), true);
+            return $responseBodyDecode;
+
+        } catch (\Exception $e) {
+            throw new \Exception("Error on add approved redirect URLs. Message: {$e->getMessage()}");
+
+        }
+    }
+
+    /**
      * Do a post with HMAC authorization to VerifyMy OAuthV2 and return response from service.
      */
     public function getStartVerificationUrl(string $country, string $method="", string $businessSettingsId="", string $externalUserId="", string $verificationId="", string $webhook="",bool $stealth=false, bool $runOtp=false, array $userInfo=array()){
@@ -62,7 +92,7 @@ class OAuthV2
         if($method && !in_array($method, static::METHODS)){
             throw new \Exception("Invalid method: ". $method);
         }
-    
+
         try {
             $body = [
                 "scope"                 => $this->provider()->getDefaultScope(),
@@ -88,23 +118,25 @@ class OAuthV2
                     'Content-Type'          => 'application/json',
                 ],
                 'body' => $bodyEncoded,
-    
+
             ]);
             $responseBodyDecode = json_decode($response->getBody()->getContents(), true);
             return $responseBodyDecode;
 
         }catch (\Exception $e) {
             throw new \Exception("Error on get start verification url. Message: " . $e->getMessage());
-        
+
         }
-       
+
     }
 
-     /**
+
+
+    /**
      * After the user completes the verification process with us, we will redirect the user back to you
      * using your redirect URL provided to us in the first step, we will keep all the query strings you've sent and also
      * add two new ones, First as **code** and Second as **verification_id**.
-     * The **code** must be used in this function, so we can authenticate your request and identify the verification 
+     * The **code** must be used in this function, so we can authenticate your request and identify the verification
      * that you want to get the result.
      */
     public function exchangeCodeByToken($code)
@@ -112,7 +144,7 @@ class OAuthV2
         $response = $this->provider()->getAccessToken('authorization_code', [
             'code' => $code,
         ]);
-    
+
         return [
             'accessToken' => $response->getToken(),
             'expires' => $response->getExpires(),
@@ -131,7 +163,7 @@ class OAuthV2
                 'clientId'                 => $this->clientID,
                 'clientSecret'             => $this->clientSecret,
                 'redirectUri'              => $this->redirectURL,
-                
+
             ]);
         }
         return $this->currentProvider;
