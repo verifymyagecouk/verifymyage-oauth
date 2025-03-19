@@ -52,6 +52,77 @@ class OAuthV2
     }
 
     /**
+     * Generate a pre authorization with the /me endpoint and return a response from service.
+     *
+     * @param string $authToken
+     * @return array
+     */
+    public function getVerificationStatusPreAuth(string $authToken)
+    {
+        try {
+            $authorization      = $this->provider()->generateHMACAutorization('');
+            $url                = $this->provider()->getBaseMeUrl($authToken);
+            $response           = $client->request('GET', $url, [
+                'headers' => [
+                    'Authorization'         => $authorization,
+                    'Content-Type'          => 'application/json',
+                ]
+            ]);
+
+            $responseBodyDecode = json_decode($response->getBody()->getContents(), true);
+            return $responseBodyDecode;
+
+        } catch (\Exception $e) {
+            throw new \Exception("Error on get verification status pre auth. Message: {$e->getMessage()}");
+
+        }
+    }
+
+    /**
+     * Check the status of a verification and return a response from service.
+     *
+     * @param string $id
+     * @return array
+     */
+    public function getVerificationStatusPostAuth(string $id)
+    {
+        try {
+            $authorization      = $this->provider()->generateHMACAutorization('');
+            $url                = $this->provider()->getBaseStatusUrl($id);
+            $response           = $client->request('GET', $url, [
+                'headers' => [
+                    'Authorization'         => $authorization,
+                    'Content-Type'          => 'application/json',
+                ]
+            ]);
+
+            $responseBodyDecode = json_decode($response->getBody()->getContents(), true);
+            return $responseBodyDecode;
+
+        } catch (\Exception $e) {
+            throw new \Exception("Error on get verification status. Message: {$e->getMessage()}");
+
+        }
+    }
+
+    /**
+     * An opinionated wrapper for getting a pre-authorization and the status of a verification.
+     *
+     * @param string $authToken
+     * @return array|null
+     */
+    public function getVerificationStatus(string $authToken)
+    {
+        $pre_auth        = $this->getVerificationStatusPreAuth($authToken);
+
+        if (isset($pre_auth['age_verified']) && $pre_auth['age_verified'] == true && !empty($pre_auth['id'])) {
+            return $this->getVerificationStatusPostAuth($pre_auth['id']);
+        }
+
+        return null;
+    }
+
+    /**
      * Do a post with HMAC authorization to VerifyMy OAuthV2 and return response from service.
      */
     public function getStartVerificationUrl(string $country, string $method="", string $businessSettingsId="", string $externalUserId="", string $verificationId="", string $webhook="",bool $stealth=false, bool $runOtp=false, array $userInfo=array()){
@@ -62,7 +133,7 @@ class OAuthV2
         if($method && !in_array($method, static::METHODS)){
             throw new \Exception("Invalid method: ". $method);
         }
-    
+
         try {
             $body = [
                 "scope"                 => $this->provider()->getDefaultScope(),
@@ -88,23 +159,23 @@ class OAuthV2
                     'Content-Type'          => 'application/json',
                 ],
                 'body' => $bodyEncoded,
-    
+
             ]);
             $responseBodyDecode = json_decode($response->getBody()->getContents(), true);
             return $responseBodyDecode;
 
         }catch (\Exception $e) {
             throw new \Exception("Error on get start verification url. Message: " . $e->getMessage());
-        
+
         }
-       
+
     }
 
      /**
      * After the user completes the verification process with us, we will redirect the user back to you
      * using your redirect URL provided to us in the first step, we will keep all the query strings you've sent and also
      * add two new ones, First as **code** and Second as **verification_id**.
-     * The **code** must be used in this function, so we can authenticate your request and identify the verification 
+     * The **code** must be used in this function, so we can authenticate your request and identify the verification
      * that you want to get the result.
      */
     public function exchangeCodeByToken($code)
@@ -112,7 +183,7 @@ class OAuthV2
         $response = $this->provider()->getAccessToken('authorization_code', [
             'code' => $code,
         ]);
-    
+
         return [
             'accessToken' => $response->getToken(),
             'expires' => $response->getExpires(),
@@ -131,7 +202,7 @@ class OAuthV2
                 'clientId'                 => $this->clientID,
                 'clientSecret'             => $this->clientSecret,
                 'redirectUri'              => $this->redirectURL,
-                
+
             ]);
         }
         return $this->currentProvider;
