@@ -72,7 +72,7 @@ class OAuthV2
                 "external_user_id"      => $externalUserId,
                 "verification_id"       => $verificationId,
                 "redirect_url"          => $this->redirectURL,
-                "otp_webhook"               => $webhook,
+                "webhook"               => $webhook,
             ];
             if (count($userInfo)) {
                 $body['user_info'] = $this->provider()->getUserInfoEncoded($userInfo);
