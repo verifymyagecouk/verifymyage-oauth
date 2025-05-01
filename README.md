@@ -91,7 +91,6 @@ $result = $oauth->getStartVerificationUrl(
     verificationId: 'verification-123',
     webhook: 'https://your-webhook.com/callback',
     stealth: false,
-    runOtp: false,
     userInfo: [
         'email' => 'user@example.com'
         // Additional user information
