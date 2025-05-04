@@ -12,11 +12,11 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
     use BearerAuthorizationTrait;
 
     const ACCESS_TOKEN_RESOURCE_OWNER_ID = null;
-    
+
     private $baseURL = "https://oauth.verifymyage.com";
 
     public function useSandbox(){
-       $this->baseURL = "https://oauth.sandbox.verifymyage.com";
+        $this->baseURL = "https://oauth.sandbox.verifymyage.com";
     }
 
     public function getBaseAuthorizationUrl(){
@@ -27,13 +27,17 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
         return "{$this->baseURL}/token";
     }
 
+    public function getBaseApprovedUrl() {
+        return "{$this->baseURL}/v1/business/allowed-redirects";
+    }
+
     public function getUserInfoEncoded($userInfo){
         $userInfo['email']  = self::encrypt($userInfo['email']);
         return $userInfo;
     }
 
     public function generateHMACAutorization($body)
-    { 
+    {
         $VMASignature = hash_hmac('sha256', $body, $this->clientSecret);
         return "hmac {$this->clientId}:{$VMASignature}";
     }
@@ -41,7 +45,7 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
     public function getResourceOwnerDetailsUrl(AccessToken $token) {
         return "{$this->baseURL}/users/me";
     }
-    
+
     public function getDefaultScope() {
         return 'adult';
     }
@@ -53,7 +57,7 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
     protected function checkResponse(ResponseInterface $response, $data) {
 
     }
-    
+
     protected function createResourceOwner(array $response, AccessToken $token) {
         return new GenericResourceOwner($response, null);
     }
@@ -63,7 +67,7 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
         $secretHash         = substr(hash('sha256', $this->clientSecret, true), 0, 32);
         $iv                 = openssl_random_pseudo_bytes(16);
         $ciphertext         = openssl_encrypt($text, 'AES-256-CFB', $secretHash, OPENSSL_RAW_DATA, $iv);
-        $ciphertext_base64  = base64_encode($iv . $ciphertext);    
+        $ciphertext_base64  = base64_encode($iv . $ciphertext);
         return $ciphertext_base64;
     }
 
