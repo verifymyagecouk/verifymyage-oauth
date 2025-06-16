@@ -4,7 +4,7 @@
     "type": "project",
     "minimum-stability": "stable",
     "license": "MIT",
-    "version": "3.0.4",
+    "version": "3.0.5",
     "require": {
         "league/oauth2-client": "^2.6"
     },
