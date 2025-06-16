@@ -122,6 +122,14 @@ class OAuthV2
     }
 
     /**
+     * Return user data
+     */
+    public function user($accessToken)
+    {
+        return $this->provider()->getResourceOwner($accessToken)->toArray();
+    }
+
+    /**
      * VMA Provider
      */
     private function provider()
