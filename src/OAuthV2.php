@@ -122,7 +122,7 @@ class OAuthV2
     }
 
     /**
-     * Return user data
+     * Return user data from an access token
      */
     public function user($accessToken)
     {
