@@ -93,9 +93,14 @@ class OAuthV2
             $responseBodyDecode = json_decode($response->getBody()->getContents(), true);
             return $responseBodyDecode;
 
-        }catch (\Exception $e) {
-            throw new \Exception("Error on get start verification url. Message: " . $e->getMessage());
-        
+        }catch (\GuzzleHttp\Exception\ClientException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response->getStatusCode();
+
+            $jsonObject = json_decode($response->getBody()->getContents(), true);
+            $jsonObject['code'] = $statusCode;
+            
+            throw new \Exception(json_encode($jsonObject));
         }
        
     }
