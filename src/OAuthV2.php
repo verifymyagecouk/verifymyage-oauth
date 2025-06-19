@@ -117,7 +117,7 @@ class OAuthV2
         $response = $this->provider()->getAccessToken('authorization_code', [
             'code' => $code,
         ]);
-    
+        
         return [
             'accessToken' => $response->getToken(),
             'expires' => $response->getExpires(),
@@ -130,8 +130,9 @@ class OAuthV2
      * Return user data from an access token
      */
     public function user($accessToken)
-    {
-        return $this->provider()->getResourceOwner($accessToken)->toArray();
+    {   
+        $accessTokenValue = $this->provider()->getAccessTokenFromString($accessToken['accessToken']);
+        return $this->provider()->getResourceOwner($accessTokenValue)->toArray();
     }
 
     /**

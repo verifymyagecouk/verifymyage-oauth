@@ -41,6 +41,12 @@ class VerifyMyAgeV2Provider extends \League\OAuth2\Client\Provider\AbstractProvi
     public function getResourceOwnerDetailsUrl(AccessToken $token) {
         return "{$this->baseURL}/users/me";
     }
+
+    public function getAccessTokenFromString($tokenString) {
+        return new AccessToken([
+            'access_token' => $tokenString,
+        ]);
+    }
     
     public function getDefaultScope() {
         return 'adult';
