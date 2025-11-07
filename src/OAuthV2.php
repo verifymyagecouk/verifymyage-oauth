@@ -31,6 +31,7 @@ class OAuthV2
         Countries::FRANCE,
         Countries::GERMANY,
         Countries::UNITED_STATES_OF_AMERICA,
+        Countries::ITALY,
         Countries::DEMO,
     ];
 
