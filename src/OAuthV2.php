@@ -35,6 +35,12 @@ class OAuthV2
         Countries::DEMO,
     ];
 
+    const WEBHOOK_NOTIFICATION_LEVELS = [
+        Webhook::MINIMUM_NOTIFICATION_LEVEL,
+        Webhook::METHOD_EXHAUSTED_NOTIFICATION_LEVEL,
+        Webhook::DETAILED_NOTIFICATION_LEVEL,
+    ];
+
     public function __construct($clientID, $clientSecret, $redirectURL)
     {
         $this->clientID = $clientID;
@@ -62,6 +68,10 @@ class OAuthV2
 
         if($method && !in_array($method, static::METHODS)){
             throw new \Exception("Invalid method: ". $method);
+        }
+
+        if ($webhookNotificationLevel && !in_array($webhookNotificationLevel, static::WEBHOOK_NOTIFICATION_LEVELS)) {
+            throw new \Exception("Invalid webhook notification level: ". $webhookNotificationLevel);
         }
     
         try {
