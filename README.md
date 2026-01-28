@@ -80,6 +80,15 @@ Methods::ID_SCAN_FACE_MATCH
 Methods::EMAIL
 ```
 
+### Webhook Notification Levels
+
+Available webhook notification levels:
+```php
+Webhook::MINIMUM_NOTIFICATION_LEVEL
+Webhook::METHOD_EXHAUSTED_NOTIFICATION_LEVEL
+Webhook::DETAILED_NOTIFICATION_LEVEL
+```
+
 ### Starting Verification (OAuthV2)
 
 ```php
@@ -90,6 +99,7 @@ $result = $oauth->getStartVerificationUrl(
     externalUserId: 'user-123',
     verificationId: 'verification-123',
     webhook: 'https://your-webhook.com/callback',
+    webhookNotificationLevel: Webhook::DETAILED_NOTIFICATION_LEVEL,
     stealth: false,
     userInfo: [
         'email' => 'user@example.com'
@@ -150,6 +160,7 @@ Here's a complete example of implementing age verification:
 use VerifyMyAge\OAuthV2;
 use VerifyMyAge\Countries;
 use VerifyMyAge\Methods;
+use VerifyMyAge\Webhook;
 
 // Initialize the OAuth client
 $oauth = new OAuthV2(
@@ -167,7 +178,8 @@ $verificationResult = $oauth->getStartVerificationUrl(
     method: Methods::ID_SCAN,
     businessSettingsId: 'your-business-id',
     externalUserId: 'user-123',
-    webhook: 'https://your-app.com/webhook'
+    webhook: 'https://your-app.com/webhook',
+    webhookNotificationLevel: Webhook::DETAILED_NOTIFICATION_LEVEL,
 );
 
 // Handle the verification response

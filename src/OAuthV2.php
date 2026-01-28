@@ -35,6 +35,12 @@ class OAuthV2
         Countries::DEMO,
     ];
 
+    const WEBHOOK_NOTIFICATION_LEVELS = [
+        Webhook::MINIMUM_NOTIFICATION_LEVEL,
+        Webhook::METHOD_EXHAUSTED_NOTIFICATION_LEVEL,
+        Webhook::DETAILED_NOTIFICATION_LEVEL,
+    ];
+
     public function __construct($clientID, $clientSecret, $redirectURL)
     {
         $this->clientID = $clientID;
@@ -55,13 +61,17 @@ class OAuthV2
     /**
      * Do a post with HMAC authorization to VerifyMy OAuthV2 and return response from service.
      */
-    public function getStartVerificationUrl(string $country, string $method="", string $businessSettingsId="", string $externalUserId="", string $verificationId="", string $webhook="",bool $stealth=false, array $userInfo=array()){
+    public function getStartVerificationUrl(string $country, string $method="", string $businessSettingsId="", string $externalUserId="", string $verificationId="", string $webhook="", string $webhookNotificationLevel="", bool $stealth=false, array $userInfo=array()){
         if (!in_array($country, static::COUNTRIES)) {
             throw new \Exception("Invalid country: " . $country);
         }
 
         if($method && !in_array($method, static::METHODS)){
             throw new \Exception("Invalid method: ". $method);
+        }
+
+        if ($webhookNotificationLevel && !in_array($webhookNotificationLevel, static::WEBHOOK_NOTIFICATION_LEVELS)) {
+            throw new \Exception("Invalid webhook notification level: ". $webhookNotificationLevel);
         }
     
         try {
@@ -74,6 +84,7 @@ class OAuthV2
                 "verification_id"       => $verificationId,
                 "redirect_url"          => $this->redirectURL,
                 "webhook"               => $webhook,
+                "webhook_notification_level" => $webhookNotificationLevel,
             ];
             if (count($userInfo)) {
                 $body['user_info'] = $this->provider()->getUserInfoEncoded($userInfo);
