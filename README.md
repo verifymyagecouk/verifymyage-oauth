@@ -84,7 +84,7 @@ Methods::EMAIL
 
 Available webhook notification levels:
 ```php
-Webhook::MINIMUM_NOTIFICATION_LEVEL
+Webhook::MINIMAL_NOTIFICATION_LEVEL
 Webhook::METHOD_EXHAUSTED_NOTIFICATION_LEVEL
 Webhook::DETAILED_NOTIFICATION_LEVEL
 ```
