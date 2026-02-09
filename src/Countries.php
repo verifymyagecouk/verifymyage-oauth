@@ -4,6 +4,8 @@ namespace VerifyMyAge;
 
 class Countries {
 
+  const AUSTRALIA = "au";
+  const BRAZIL = "br";
   const UNITED_KINGDOM = "gb";
   const UNITED_KINGDOM_TWO = "gb2";
   const UNITED_KINGDOM_THREE = "gb3";
