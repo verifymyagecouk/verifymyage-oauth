@@ -133,6 +133,8 @@ $token = $oauth->exchangeCodeByToken($code);
 ### Supported Countries
 
 The SDK supports various countries including:
+- Australia (`Countries::AUSTRALIA`)
+- Brazil (`Countries::BRAZIL`)
 - United Kingdom (`Countries::UNITED_KINGDOM`)
 - France (`Countries::FRANCE`)
 - Germany (`Countries::GERMANY`)

@@ -9,6 +9,8 @@ class OAuth
 {
 
     const COUNTRIES = [
+        Countries::AUSTRALIA,
+        Countries::BRAZIL,
         Countries::UNITED_KINGDOM,
         Countries::UNITED_KINGDOM_TWO,
         Countries::UNITED_KINGDOM_THREE,
