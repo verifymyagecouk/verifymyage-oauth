@@ -135,10 +135,12 @@ $token = $oauth->exchangeCodeByToken($code);
 The SDK supports various countries including:
 - Australia (`Countries::AUSTRALIA`)
 - Brazil (`Countries::BRAZIL`)
+- Spain (`Countries::SPAIN`)
 - United Kingdom (`Countries::UNITED_KINGDOM`)
 - France (`Countries::FRANCE`)
 - Germany (`Countries::GERMANY`)
 - United States (`Countries::UNITED_STATES_OF_AMERICA`)
+- Ireland (`Countries::IRELAND`)
 - Italy (`Countries::ITALY`)
 - Demo mode (`Countries::DEMO`)
 

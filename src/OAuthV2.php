@@ -29,10 +29,12 @@ class OAuthV2
     const COUNTRIES = [
         Countries::AUSTRALIA,
         Countries::BRAZIL,
+        Countries::SPAIN,
         Countries::UNITED_KINGDOM,
         Countries::FRANCE,
         Countries::GERMANY,
         Countries::UNITED_STATES_OF_AMERICA,
+        Countries::IRELAND,
         Countries::ITALY,
         Countries::DEMO,
     ];

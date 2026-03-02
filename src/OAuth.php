@@ -11,6 +11,7 @@ class OAuth
     const COUNTRIES = [
         Countries::AUSTRALIA,
         Countries::BRAZIL,
+        Countries::SPAIN,
         Countries::UNITED_KINGDOM,
         Countries::UNITED_KINGDOM_TWO,
         Countries::UNITED_KINGDOM_THREE,
@@ -29,6 +30,7 @@ class OAuth
         Countries::UNITED_STATES_OF_AMERICA_EIGHT,
         Countries::UNITED_STATES_OF_AMERICA_NINE,
         Countries::UNITED_STATES_OF_AMERICA_TEN,
+        Countries::IRELAND,
         Countries::ITALY,
         Countries::ITALY_TWO,
         Countries::DEMO,
