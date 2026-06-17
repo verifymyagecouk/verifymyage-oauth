@@ -30,6 +30,7 @@ class OAuth
         Countries::UNITED_STATES_OF_AMERICA_EIGHT,
         Countries::UNITED_STATES_OF_AMERICA_NINE,
         Countries::UNITED_STATES_OF_AMERICA_TEN,
+        Countries::INDONESIA,
         Countries::IRELAND,
         Countries::ITALY,
         Countries::ITALY_TWO,
