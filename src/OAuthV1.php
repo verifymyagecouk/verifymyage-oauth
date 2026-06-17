@@ -34,6 +34,7 @@ class OAuthV1
         Countries::FRANCE,
         Countries::GERMANY,
         Countries::UNITED_STATES_OF_AMERICA,
+        Countries::INDONESIA,
         Countries::IRELAND,
         Countries::ITALY,
         Countries::DEMO,

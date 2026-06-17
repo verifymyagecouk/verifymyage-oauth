@@ -140,6 +140,7 @@ The SDK supports various countries including:
 - France (`Countries::FRANCE`)
 - Germany (`Countries::GERMANY`)
 - United States (`Countries::UNITED_STATES_OF_AMERICA`)
+- Indonesia (`Countries::INDONESIA`)
 - Ireland (`Countries::IRELAND`)
 - Italy (`Countries::ITALY`)
 - Demo mode (`Countries::DEMO`)
