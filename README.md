@@ -6,13 +6,19 @@ A PHP SDK for integrating with VerifyMyAge's verification service. This library 
 - [Installation](#installation)
 - [Features](#features)
 - [Usage](#usage)
-  - [Basic Setup](#basic-setup)
-  - [Available Methods](#available-methods)
+  - [SDK Versions](#sdk-versions)
   - [Verification Methods](#verification-methods)
-  - [Verification Status](#verification-status-oauthv1--oauthv2)
+  - [Webhook Notification Levels](#webhook-notification-levels)
   - [Supported Countries](#supported-countries)
-- [Examples](#examples)
+- [OAuthV3 (Recommended)](#oauthv3-recommended)
+  - [Start a Verification](#start-a-verification)
+  - [Get Verification Status](#get-verification-status)
+  - [Manage Allowed Redirect URLs](#manage-allowed-redirect-urls)
+- [OAuthV2](#oauthv2)
+- [OAuthV1 / OAuth (Legacy)](#oauthv1--oauth-legacy)
 - [Development Mode](#development-mode)
+- [Error Handling](#error-handling)
+- [Security Considerations](#security-considerations)
 
 ## Installation
 
@@ -22,112 +28,45 @@ composer require verifymyagecouk/verifymyage-oauth
 
 ## Features
 
-- Authentication flow
+- API v3 support with direct HMAC authentication
 - Multiple verification methods
 - Support for various countries
 - Sandbox environment for testing
-- HMAC authentication
 - User data encryption
 
 ## Usage
 
-### Basic Setup
+### SDK Versions
 
-```php
-use VerifyMyAge\OAuth;
-
-// Initialize the OAuth client
-$oauth = new OAuth(
-    'your-client-id',
-    'your-client-secret',
-    'your-redirect-url'
-);
-
-// For development/testing, use sandbox mode
-$oauth->useSandbox();
-```
-
-### Available Methods
-
-The SDK provides three different versions of the OAuth implementation:
-
-1. **OAuth (Legacy)**:
-```php
-use VerifyMyAge\OAuth;
-$oauth = new OAuth($clientId, $clientSecret, $redirectUrl);
-```
-
-2. **OAuthV1**: 
-```php
-use VerifyMyAge\OAuthV1;
-$oauth = new OAuthV1($clientId, $clientSecret, $redirectUrl);
-```
-
-3. **OAuthV2** (Recommended):
-```php
-use VerifyMyAge\OAuthV2;
-$oauth = new OAuthV2($clientId, $clientSecret, $redirectUrl);
-```
+| Class | API Version | Status |
+|-------|-------------|--------|
+| `OAuthV3` | v3 | **Recommended** |
+| `OAuthV2` | v2 | Maintained |
+| `OAuthV1` | v1 | Maintained |
+| `OAuth` | Legacy | Legacy |
 
 ### Verification Methods
 
-Available verification methods:
 ```php
-Methods::AGE_ESTIMATION
-Methods::CREDIT_CARD
-Methods::ID_SCAN
-Methods::ID_SCAN_FACE_MATCH
-Methods::EMAIL
+use VerifyMyAge\Methods;
+
+Methods::AGE_ESTIMATION     // "AgeEstimation"
+Methods::CREDIT_CARD        // "CreditCard"
+Methods::DOUBLE_BLIND       // "DoubleBlind"  — v3 only
+Methods::EMAIL              // "Email"
+Methods::ID_SCAN            // "IDScan"
+Methods::ID_SCAN_FACE_MATCH // "IDScanFaceMatch"
 ```
 
 ### Webhook Notification Levels
 
-Available webhook notification levels:
 ```php
-Webhook::MINIMAL_NOTIFICATION_LEVEL
-Webhook::METHOD_EXHAUSTED_NOTIFICATION_LEVEL
-Webhook::DETAILED_NOTIFICATION_LEVEL
-```
+use VerifyMyAge\Webhook;
 
-### Starting Verification (OAuthV2)
-
-```php
-$result = $oauth->getStartVerificationUrl(
-    country: Countries::UNITED_KINGDOM,
-    method: Methods::ID_SCAN,
-    businessSettingsId: 'your-business-settings-id',
-    externalUserId: 'user-123',
-    verificationId: 'verification-123',
-    webhook: 'https://your-webhook.com/callback',
-    webhookNotificationLevel: Webhook::DETAILED_NOTIFICATION_LEVEL,
-    stealth: false,
-    userInfo: [
-        'email' => 'user@example.com'
-        // Additional user information
-    ]
-);
-```
-
-### Handling the OAuth Flow
-
-1. **Generate Authorization URL**:
-```php
-$authUrl = $oauth->redirectURL(
-    country: Countries::UNITED_KINGDOM,
-    method: Methods::ID_SCAN
-);
-```
-
-2. **Exchange Code for Token**:
-
-After the user completes the verification process with us, we will redirect the user back to you
-using your redirect URL provided to us in the first step, we will keep all the query strings you've sent and also
-add two new ones, First as **code** and Second as **verification_id**.
-The **code** must be used in this function, so we can authenticate your request and identify the verification 
-that you want to get the result.
-
-```php
-$token = $oauth->exchangeCodeByToken($code);
+Webhook::MINIMAL_NOTIFICATION_LEVEL              // "minimal"           — v2 & v3
+Webhook::DETAILED_NOTIFICATION_LEVEL             // "detailed"          — v2 & v3
+Webhook::METHOD_EXHAUSTED_NOTIFICATION_LEVEL     // "method_exhausted"  — v2
+Webhook::METHOD_EXHAUSTED_V3_NOTIFICATION_LEVEL  // "method-exhausted"  — v3
 ```
 
 ### Supported Countries
@@ -145,78 +84,189 @@ The SDK supports various countries including:
 - Italy (`Countries::ITALY`)
 - Demo mode (`Countries::DEMO`)
 
-## Development Mode
+---
 
-For testing and development, use the sandbox environment:
+## OAuthV3 (Recommended)
+
+OAuthV3 targets the `/api/v3/verifications` endpoints and uses HMAC authentication directly — there is no OAuth2 code-exchange step. After the user completes verification they are redirected to your `redirect_url` with a `verification_id` query parameter; use `getVerification()` to retrieve the result.
+
+### Start a Verification
 
 ```php
+use VerifyMyAge\OAuthV3;
+use VerifyMyAge\Countries;
+use VerifyMyAge\Methods;
+use VerifyMyAge\Webhook;
+
+$oauth = new OAuthV3(
+    'your-api-key',
+    'your-api-secret',
+    'https://your-app.com/callback'
+);
+
+// Optional: use sandbox for development
 $oauth->useSandbox();
+
+$result = $oauth->getStartVerificationUrl(
+    country: Countries::UNITED_KINGDOM,
+    method: Methods::ID_SCAN,                                   // optional
+    businessSettingsId: 'your-business-settings-id',            // optional
+    externalUserId: 'user-123',                                 // optional
+    webhook: 'https://your-app.com/webhook',                    // optional
+    webhookNotificationLevel: Webhook::DETAILED_NOTIFICATION_LEVEL, // optional
+    userInfo: ['email' => 'user@example.com'],                  // optional
+);
+
+// Instant approval — no user interaction needed
+if ($result['verification_status'] === 'approved') {
+    // User is already approved
+}
+
+// User interaction required — redirect them to the verification URL
+if (isset($result['start_verification_url'])) {
+    header('Location: ' . $result['start_verification_url']);
+    exit;
+}
 ```
 
-This will direct all requests to the sandbox API endpoint.
+### Get Verification Status
 
-## Complete Example
-
-Here's a complete example of implementing age verification:
+After the user completes verification they are redirected to your callback URL with `?verification_id=abc123`. Use that ID to fetch the result:
 
 ```php
-<?php
+$verification = $oauth->getVerification($verificationId);
 
+// Possible statuses: started | pending | approved | failed | expired
+echo $verification['status'];
+```
+
+### Manage Allowed Redirect URLs
+
+```php
+// List all registered redirect URLs for this account
+$urls = $oauth->getAllowedRedirects();
+
+// Append new URLs (does not replace the existing list)
+$oauth->addAllowedRedirects([
+    'https://your-app.com/callback',
+    'https://your-app.com/alt-callback',
+]);
+```
+
+---
+
+## OAuthV2
+
+OAuthV2 targets the `/v2/auth/start` endpoint. After verification the user is redirected with a `code` and `verification_id`; exchange the code for a token to retrieve user data.
+
+```php
 use VerifyMyAge\OAuthV2;
 use VerifyMyAge\Countries;
 use VerifyMyAge\Methods;
 use VerifyMyAge\Webhook;
 
-// Initialize the OAuth client
 $oauth = new OAuthV2(
-    clientID: 'your-client-id',
-    clientSecret: 'your-client-secret',
-    redirectURL: 'https://your-app.com/callback'
+    'your-client-id',
+    'your-client-secret',
+    'https://your-app.com/callback'
 );
 
-// Use sandbox for development
-$oauth->useSandbox();
+$oauth->useSandbox(); // optional
 
-// Start verification process
-$verificationResult = $oauth->getStartVerificationUrl(
+// Start verification
+$result = $oauth->getStartVerificationUrl(
     country: Countries::UNITED_KINGDOM,
     method: Methods::ID_SCAN,
     businessSettingsId: 'your-business-id',
     externalUserId: 'user-123',
+    verificationId: '',
     webhook: 'https://your-app.com/webhook',
     webhookNotificationLevel: Webhook::DETAILED_NOTIFICATION_LEVEL,
+    stealth: false,
+    userInfo: ['email' => 'user@example.com'],
 );
 
-// Handle the verification response
-if (isset($verificationResult['verification_url'])) {
-    // Redirect user to verification URL
-    header('Location: ' . $verificationResult['verification_url']);
+if (isset($result['start_verification_url'])) {
+    header('Location: ' . $result['start_verification_url']);
     exit;
 }
+
+// On callback: exchange the code for a token
+$token = $oauth->exchangeCodeByToken($_GET['code']);
+
+// Retrieve user/verification data
+$user = $oauth->user($token);
 ```
 
-### Verification Status (OAuthV1 & OAuthV2)
+---
 
-For detailed information about how to check the verification status, please refer to the official documentation:
-[Verification Status Documentation](https://docs.verifymyage.com/docs/adult/authorisation/#retrieve-verification-status)
+## OAuthV1 / OAuth (Legacy)
 
-## Security Considerations
+```php
+use VerifyMyAge\OAuthV1;
 
-- Always use HTTPS for redirect URLs
-- Keep your client credentials secure
-- Validate all user input
-- Implement proper error handling
-- Use webhook validation for callbacks
+$oauth = new OAuthV1($clientId, $clientSecret, $redirectUrl);
+
+$result = $oauth->getStartVerificationUrl(
+    country: Countries::UNITED_KINGDOM,
+    method: Methods::ID_SCAN,
+);
+
+// On callback: exchange the code for a token
+$token = $oauth->exchangeCodeByToken($_GET['code']);
+```
+
+The legacy `OAuth` class uses the OAuth2 authorization-code redirect flow:
+
+```php
+use VerifyMyAge\OAuth;
+
+$oauth = new OAuth($clientId, $clientSecret, $redirectUrl);
+
+// Redirect user to the VerifyMyAge authorization page
+$authUrl = $oauth->redirectURL(Countries::UNITED_KINGDOM, Methods::ID_SCAN);
+header('Location: ' . $authUrl);
+exit;
+
+// On callback: exchange the code for a token
+$token = $oauth->exchangeCodeByToken($_GET['code']);
+$user  = $oauth->user($token);
+```
+
+---
+
+## Development Mode
+
+All SDK versions support sandbox mode. Use it during development to avoid affecting production data:
+
+```php
+$oauth->useSandbox();
+```
+
+Sandbox endpoint: `https://oauth.sandbox.verifymyage.com`  
+Production endpoint: `https://oauth.verifymyage.com`
+
+---
 
 ## Error Handling
 
-The SDK throws exceptions for invalid inputs or API errors. Always wrap API calls in try-catch blocks:
+The SDK throws `\Exception` for invalid inputs and API errors. API errors include the HTTP status code in the exception message as JSON:
 
 ```php
 try {
-    $result = $oauth->getStartVerificationUrl(...);
+    $result = $oauth->getStartVerificationUrl(country: Countries::UNITED_KINGDOM);
 } catch (\Exception $e) {
-    // Handle the error appropriately
+    $error = json_decode($e->getMessage(), true);
+    // $error['code'] contains the HTTP status code (for API errors)
     error_log($e->getMessage());
 }
 ```
+
+---
+
+## Security Considerations
+
+- Always use HTTPS for redirect URLs and webhook endpoints
+- Keep your API credentials secure and out of version control
+- Validate the `verification_id` received in callbacks before using it
+- Use webhook signature verification where available
