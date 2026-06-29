@@ -129,6 +129,56 @@ if (isset($result['start_verification_url'])) {
 }
 ```
 
+### Encrypting User Info Fields
+
+Sensitive values in `userInfo` are expected by the API to be encrypted. How encryption is applied depends on the field:
+
+- **`email` is encrypted automatically.** When you include `email` in `userInfo`, the SDK encrypts it for you before the verification is created. Pass it as a plain string — do **not** encrypt it yourself, or it will be double-encrypted and rejected.
+- **Other fields, such as `phone`, are NOT encrypted by the SDK.** The SDK only encrypts the `email` field. If you need to send another field encrypted, you must encrypt it yourself before adding it to `userInfo`, using the same scheme the SDK applies to `email`.
+
+#### Encrypting `phone` (and other fields) manually
+
+The SDK encrypts `email` with **AES-256-CFB**, using a key derived from your API secret. To send `phone` encrypted, replicate that exact scheme:
+
+- **Key:** the first 32 bytes of the raw (binary) SHA-256 hash of your API secret.
+- **IV:** 16 random bytes, generated per value.
+- **Output:** base64 of the IV concatenated with the ciphertext (`base64(iv . ciphertext)`).
+
+```php
+use VerifyMyAge\OAuthV3;
+use VerifyMyAge\Countries;
+
+$apiSecret = 'your-api-secret';
+
+// Same algorithm the SDK uses internally for `email`.
+function encryptUserInfoField(string $value, string $apiSecret): string
+{
+    $key        = substr(hash('sha256', $apiSecret, true), 0, 32);
+    $iv         = openssl_random_pseudo_bytes(16);
+    $ciphertext = openssl_encrypt($value, 'AES-256-CFB', $key, OPENSSL_RAW_DATA, $iv);
+
+    return base64_encode($iv . $ciphertext);
+}
+
+$oauth = new OAuthV3(
+    'your-api-key',
+    $apiSecret,
+    'https://your-app.com/callback'
+);
+
+$userInfo = [
+    'email' => 'user@example.com',                                   // encrypted automatically by the SDK
+    'phone' => encryptUserInfoField('+447123456789', $apiSecret),    // you encrypt this yourself
+];
+
+$result = $oauth->getStartVerificationUrl(
+    country: Countries::UNITED_KINGDOM,
+    userInfo: $userInfo,
+);
+```
+
+> **Important:** Only encrypt fields the SDK does *not* handle. Never pre-encrypt `email` — the SDK already encrypts it, and encrypting it twice will cause the verification to be rejected.
+
 ### Get Verification Status
 
 After the user completes verification they are redirected to your callback URL with `?verification_id=abc123`. Use that ID to fetch the result:
